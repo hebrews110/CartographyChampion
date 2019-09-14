@@ -43,6 +43,11 @@ export class InfoBox extends DisplayedItem {
     protected dialogDisplayed() {
 
     }
+    async resize() {
+        await super.resize();
+        if(this.$dialog != null)
+            this.$dialog.modal('handleUpdate');
+    }
     async reset() {
         await super.reset();
         if(this.delay == undefined) {

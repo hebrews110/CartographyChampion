@@ -43,6 +43,9 @@ namespace GameTools {
         let val = Math.random() * (max - min) + min;
         return val;
     }
+    export function getRandomArrayMember<T>(a: { [index: number]: T; length: number}): T {
+        return a[getRandomInt(0, a.length - 1)];
+    }
     export function HSLToHex(h, s, l) {
         s /= 100;
         l /= 100;
@@ -163,7 +166,7 @@ namespace GameTools {
 
         return key === false ? res : null;
     }
-    export function monkeyPatch() {
+    export async function monkeyPatch() {
         directLink = window.location.hash.replace('#', '');
         if(directLink == "") {
             directLink = getQueryString('link');
@@ -171,7 +174,6 @@ namespace GameTools {
                 directLink = "";
         }
         console.log("Direct link: " + directLink);
-        $(".preloader").fadeOut(() => $(".preloader").remove());
         // Setup our DOM elements
         const $gametools_wrapper = $("<div></div>").attr(
             "id",
@@ -234,6 +236,12 @@ namespace GameTools {
         });
 
         BrowserDetect.init();
+        return new Promise((resolve) => {
+            $(".preloader").fadeOut(() => {
+                $(".preloader").remove();
+                resolve();
+            });
+        });
     }
     export function slugify(string: string): string {
         const a = 'àáäâãåăæąçćčđďèéěėëêęğǵḧìíïîįłḿǹńňñòóöôœøṕŕřßşśšșťțùúüûǘůűūųẃẍÿýźžż·/_,:;';
@@ -314,6 +322,35 @@ namespace GameTools {
                     group.setAttribute("visibility", "hidden");
             }
         });
+    }
+    export function animateCSS(element: (Element|string), animationName: AnimatableItemAnimation, callback?: () => void): Promise<void> {
+        let res, rej;
+        const prom: Promise<void> = new Promise((resolve, reject) => {
+            res = resolve;
+            rej = reject;
+        });
+        let node: Element;
+        function handleAnimationEnd() {
+            try {
+                node.classList.remove('animated', animationName);
+                node.removeEventListener('animationend', handleAnimationEnd);
+            } catch(e) {
+                rej(e);
+            }
+            try {
+                if (typeof callback === 'function') callback();
+            } catch(e) {}
+            res();
+        }
+        try {
+            node = (element instanceof Element) ? element : document.querySelector(element);
+            node.classList.add('animated', animationName);
+            node.addEventListener('animationend', handleAnimationEnd);
+        } catch(e) {
+            rej(e);
+        }
+        
+        return prom;
     }
     export function magnify(img: JQuery<HTMLElement>) {
         img.addClass("gt-preview-image mfp-popup-wrapper");
@@ -398,7 +435,7 @@ namespace GameTools {
     export function replaceAt(str: string, index: number, replacement: string): string {
         return str.substr(0, index) + replacement+ str.substr(index + replacement.length);
     }
-    export function pl_undef<T>(val: T, defaultVal: T, handleNull = false): T {
+    export function pl_undef<T, U>(val: T, defaultVal: U, handleNull = false): (T|U) {
         let useDefault = false;
         if(val == undefined)
             useDefault = true;
@@ -412,6 +449,28 @@ namespace GameTools {
     export function isLowerCase(str: string): boolean
     {
         return str == str.toLowerCase() && str != str.toUpperCase();
+    }
+    export function showTopBar(show = true): void {
+        if(show)
+            $("#top-bar").removeClass("hide-top-bar");
+        else
+            $("#top-bar").addClass("hide-top-bar");
+    }
+    export function rotateSVGEl(element: SVGGraphicsElement, degrees: number) {
+        let box = element.getBBox();
+    }
+    export function wrapNodes<K extends keyof ElementTagNameMap>(elements: (Node|Node[]), wrapTag: K, ns: "http://www.w3.org/1999/xhtml"|"http://www.w3.org/2000/svg"|string = "http://www.w3.org/1999/xhtml"): ElementTagNameMap[K] {
+        const wrapper = document.createElementNS(ns, wrapTag);
+        const processElement = (element: Node) => {
+            if(element.parentNode != null && element.parentNode != undefined)
+                element.parentNode.removeChild(element);
+            wrapper.appendChild(element);
+        };
+        if(Array.isArray(elements))
+            elements.forEach(processElement);
+        else
+            processElement(elements);
+        return wrapper as ElementTagNameMap[K];
     }
 }
 

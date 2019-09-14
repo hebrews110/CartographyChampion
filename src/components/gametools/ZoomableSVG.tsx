@@ -1,17 +1,34 @@
 import React from 'react';
 import GameTools from './GameTools';
-export class ZoomableSVG extends React.Component<{ src: string; visibleLayers?: string[]; extraClasses?: string; style?: React.CSSProperties; }, {svg_html: string; }> {
+
+import 'magnific-popup';
+
+import 'magnific-popup/dist/magnific-popup.css';
+
+type BaseZoomableProps = { visibleLayers?: string[]; extraClasses?: string; style?: React.CSSProperties; onSvgRendered?: (svg: SVGSVGElement) => void; };
+type SrcZoomableProps = { src: string; svg_html?: never; };
+type XMLZoomableProps = { svg_html: string; src?: never; };
+export type ZoomableProps = BaseZoomableProps&(SrcZoomableProps|XMLZoomableProps);
+export class ZoomableSVG extends React.Component<ZoomableProps, {svg_html: string; }> {
     imgRef: React.RefObject<HTMLDivElement>;
-    constructor(props) {
+    constructor(props: ZoomableProps) {
         super(props);
-        this.state = { svg_html: null };
+        this.state = { svg_html: GameTools.pl_undef(props.svg_html, null) };
         this.imgRef = React.createRef();
     }
     makeMagnific(img, add = true) {
         if(img == null)
             return;
         if(add) {
-            let svg = $(img).find("svg").get(0) as SVGElement;
+            let svg = $(img).find("svg").get(0) as SVGSVGElement;
+            
+            if(this.props.onSvgRendered != undefined && this.props.onSvgRendered != null) {
+                try {
+                    this.props.onSvgRendered(svg);
+                } catch(e) {
+                    console.error(e);
+                }
+            }
             GameTools.patchSVGLayers(svg, this.props.visibleLayers);
             try {
                 let str = new XMLSerializer().serializeToString(svg);
