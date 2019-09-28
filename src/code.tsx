@@ -32,7 +32,8 @@ function processLink() {
         const parts = GameTools.directLink.split('-');
         mode = GameTools.pl_undef(MapMode[parts[0] as keyof typeof MapMode], null, true);
         level = GameTools.pl_undef(MapLevel[parts[1] as keyof typeof MapLevel], null, true);
-        continentName = GameTools.pl_undef(parts[2].replace(/([A-Z])/g, ' $1').trim(), null, true);
+        if(parts[2] != undefined)
+            continentName = GameTools.pl_undef(parts[2].replace(/([A-Z])/g, ' $1').trim(), null, true);
     }
 }
 
@@ -55,6 +56,7 @@ const questionArray: QuestionOption[] = [
     { html: "South America" }
 ];
 let myArray = [
+    new Invoke(() => window.addEventListener("popstate", () => window.location.reload())),
     new SetBackground(require('./components/globe.svg'), "globe-tile"),
     new TitleScreen("This game is best played on a PC, and will not work in IE.", false),
     new Invoke(processLink),
@@ -68,14 +70,17 @@ let myArray = [
     new Invoke(() => {
         continentName = questionArray[GameTools.lastData].html as string;
         console.log(continentName);
-        /* Update the URL to match it */
-        if (window.history && window.history.replaceState) {
-            const linkName = continentName.replace(/ /g, '');
-            window.history.replaceState({}, document.title, `${location.protocol}//${location.host}${location.pathname}?link=${MapMode[mode]}-${MapLevel[level]}-${linkName}`);
-        }
     }),
 
     Label.label("run"),
+    new Invoke(() => {
+        /* Update the URL to match it */
+        if (window.history && window.history.replaceState) {
+            const linkName = (continentName != null ? continentName.replace(/ /g, '') : null);
+            window.history.pushState({}, document.title, `${location.protocol}//${location.host}${location.pathname}?link=${MapMode[mode]}-${MapLevel[level]}${linkName != null ? "-" : ""}${linkName != null ? linkName: ""}`);
+        }
+    }),
+    
     new DragDropSVGMap(() => mode, () => level, () => (continentName as ValidContinents)),
     new SetBackground(require('./components/fireworks.jpg')),
     new InfoBox("Great work!", "You've finished!", null)
