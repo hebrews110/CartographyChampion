@@ -9,27 +9,83 @@ html {
     margin: 0;
 }
 
+#gametools-wrapper #gametools-container .background-img.globe-tile {
+    background-size: 10rem auto;
+    background-repeat: repeat;
+    background-position: top left;
+}
+
+circle {
+    opacity: 0.3;
+    stroke: black;
+}
+
 #gametools-container {
     height: 100%;
     width: 100%;
 }
 
 .background-country {
-    path {
+    &, path {
         fill: rgb(200, 200, 200);
         stroke: black;
-        stroke-width: 20;
     }
 }
 
+.hide-country-borders {
+    .background-country {
+        stroke: #c8c8c8;
+        g, path {
+            stroke: inherit;
+        }
+    }
+    > :not(.background-country) {
+        stroke: black;
+        stroke-width: 2;
+    }
+}
+
+g, path {
+    &.hoverable-country:hover {
+        fill: rgb(200, 200, 0);
+    }
+}
+
+$country-fill: rgb(255, 150, 150);
+@keyframes country-animate {
+    0%, 100% {
+        fill: $country-fill;
+        stroke: $country-fill;
+    }
+    50% {
+        fill: rgb(255, 0, 0);
+        stroke: rgb(255, 0, 0) !important;
+    }
+}
 .show-correct-country {
-    path {
-        fill: rgb(255, 150, 150);
+    &, g, path {
+        fill: $country-fill;
+        stroke: $country-fill !important;
+    }
+    &.animate-correct-country {
+        &, g, path {
+            animation-name: country-animate;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
+        }
+    }
+}
+
+.input-country {
+    fill: rgb(200, 200, 0);
+    stroke-width: 2;
+    stroke: #4363d8 !important;
+    circle {
+        opacity: 1;
     }
 }
 
 use.current-country {
-    stroke-width: 80;
     stroke: blue;
     touch-action: none;
 }
@@ -45,9 +101,17 @@ use.current-country {
 }
 
 .gt-svgmap {
-    $map-landscape-height: 80vh;
+    $map-landscape-height: calc(80vh - 3.5rem);
     max-height: $map-landscape-height;
     padding: 0;
+    input[type="text"] {
+        border-radius: 0;
+    }
+    .dropdown-item {
+        $vpadding: 0.5rem;
+        padding-top: $vpadding;
+        padding-bottom: $vpadding;
+    }
     .gt-svgmap-flexbox {
         width: 100%;
         height: 100%;
@@ -88,15 +152,46 @@ use.current-country {
             }
         }
         .gt-svgmap-country-div svg {
-            height: 80vmin;
+            height: $map-landscape-height;
         }
         .gt-svgmap-map-div {
-            flex: 1 1 auto;
+            &.leaflet-container {
+                height: 60vmin;
+                min-height: 0;
+                svg {
+                    height: auto !important;
+                }
+                overflow: hidden;
+                .gt-svgmap-leaflet-wrapper {
+                    display: inline-block;
+                    position: relative;
+                    svg {
+                        width: 100%;
+                        height: 100%;
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                }
+            }
+            flex-grow: 1;
+            flex-shrink: 1;
             overflow: auto;
             max-height: 100%;
             svg {
-                height: 80vmin;
+                height: $map-landscape-height;
                 width: auto;
+                min-height: 500px;
+                g, path {
+                    transition: fill .2s ease, stroke .2s ease;
+                }
+                &:not(.hide-country-borders) > :not(.background-country) {
+                        stroke: rgb(150, 150, 150);
+                 }
+                &.continents-svg > :not(.background-country) {
+                    stroke-width: 40 !important;
+                }
             }
         }
     }

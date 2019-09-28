@@ -2,6 +2,9 @@
 import InfoBox from './InfoBox';
 import BrowserDetect from '../browserdetect.js';
 import React from 'react';
+import capitalize from 'lodash-es/capitalize';
+import camelCase from 'lodash-es/camelCase';
+import upperFirst from 'lodash-es/upperFirst';
 
 import '../jqueryui/jquery-ui.min.js';
 
@@ -166,6 +169,15 @@ namespace GameTools {
 
         return key === false ? res : null;
     }
+    export function notScrollable(element: Element): boolean {
+        console.log("scrollHeight: " + element.scrollHeight + " height: " + $(element).height());
+        console.log("scrollWidth: " + element.scrollWidth + " width: " + $(element).width());
+        if(element.scrollHeight > $(element).height())
+            return false;
+        if(element.scrollWidth > $(element).width())
+            return false;
+        return true;
+    }
     export async function monkeyPatch() {
         directLink = window.location.hash.replace('#', '');
         if(directLink == "") {
@@ -180,7 +192,8 @@ namespace GameTools {
             "gametools-wrapper"
         );
         $(document.body).append($gametools_wrapper);
-        $gametools_wrapper.append($("<div></div>").attr("id", "top-bar"));
+        const topBar = $("<div></div>").attr("id", "top-bar");
+        $gametools_wrapper.append(topBar);
         $gametools_wrapper.append(
             $("<div></div>").attr("id", "gametools-container")
         );
@@ -472,6 +485,37 @@ namespace GameTools {
             processElement(elements);
         return wrapper as ElementTagNameMap[K];
     }
+    export function unCamelCase(str: string): string {
+        return capitalize(str.replace(/([A-Z])/g, ' $1').trim());
+    }
+    export function reCamelCase(str: string): string {
+        return upperFirst(camelCase(str));
+    }
+    export function logAndReturn<T>(val: T, logFunc: (val: T) => void = console.log): T {
+        logFunc(val);
+        return val;
+    }
+    export function ifPropertyPresent<U, T, Z extends keyof T>(obj: T, name: Z, fn: (val: T[Z]) => U): (U|false);
+    export function ifPropertyPresent<U, T>(obj: T, name: string, fn: (val: any) => U): (U|false);
+    export function ifPropertyPresent<U, T>(obj: T, name: string, fn: (val: any) => U): (U|false) {
+        if((obj as any)[name] != undefined) {
+            return fn((obj as any)[name]);
+        } else
+            return false;
+    }
+    type RectNormalizationType = { top: number; left: number; right: number; bottom: number; width: number; height: number};
+    export function normalizeRect<T extends RectNormalizationType>(rect: T): T {
+        rect.width = rect.right - rect.left;
+        rect.height = rect.bottom - rect.top;
+        return rect;
+    }
+    export const encouragingPhrases: string[] = [
+        "YES!",
+        "You GOT it!",
+        "AWESOME!",
+        "GREAT!",
+        "GOOD JOB!"
+    ];
 }
 
 export default GameTools;

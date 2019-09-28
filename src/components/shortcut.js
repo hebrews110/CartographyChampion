@@ -4,7 +4,7 @@
  * By Binny V A
  * License : BSD
  */
-shortcut = {
+window.shortcut = {
 	'all_shortcuts':{},//All the shortcuts are stored in this array
 	'add': function(shortcut_combination,callback,opt) {
 		//Provide a set of default options
@@ -221,3 +221,5 @@ shortcut = {
 		else ele['on'+type] = false;
 	}
 }
+if(typeof module != 'undefined')
+    module.exports = window.shortcut;

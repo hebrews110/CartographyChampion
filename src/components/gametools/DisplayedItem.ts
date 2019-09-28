@@ -21,9 +21,11 @@ export interface GameArray extends Array<GameArrayItem> {
     indexPollers?: Array<() => void>;
     initialized?: boolean;
 }
-export interface GameValue<T> {
-    gametools_val: {};
-}
+type ConditionalGameValue<T, U, R = U> = (T extends U ? (R|(() => R)) : never);
+
+type BaseGameValue<T> = (T|(() => T));
+
+export type GameValue<T> = BaseGameValue<T>|ConditionalGameValue<T, string, JSX.Element>;
 export function initializeArray(array: GameArray, clearPollers = false, shouldWarn = false) {
     array.contentsIndex = 0;
     
@@ -130,8 +132,21 @@ export abstract class DisplayedItem {
         this.parentArray = DisplayedItem.getValue(this, array);
         return this;
     }
+    public getValue<T>(val: GameValue<T>, container?: HTMLElement): T {
+        return DisplayedItem.getValue(this, val, container);
+    }
     public static getValue<T>(item: DisplayedItem, val: GameValue<T>, container?: HTMLElement): T {
         let value: T;
+        function processReact(val: JSX.Element) {
+            if(container !== undefined && item != null && item != undefined) {
+                item.doRenderReact(val, container);
+                return undefined;
+            } else {
+                value = ((ReactDOMServer.renderToStaticMarkup(val) as unknown) as T);
+                console.warn("In most cases, rendering React components to a string will not give the desired behavior, " +
+                             "as event handlers and other related metadata will not be included.");
+            }
+        }
         if(val == null || val == undefined) {
             value = null;
         } else if(Object(val) !== val) {
@@ -139,17 +154,14 @@ export abstract class DisplayedItem {
         } else if(val instanceof Function) {
             value = val();
         } else if(React.isValidElement(val)) {
-            if(container !== undefined && item != null && item != undefined) {
-                item.doRenderReact(val as JSX.Element, container);
-                return undefined;
-            } else {
-                value = ((ReactDOMServer.renderToStaticMarkup(val as JSX.Element) as unknown) as T);
-                console.warn("In most cases, rendering React components to a string will not give the desired behavior, " +
-                             "as event handlers and other related metadata will not be included.");
-            }
-            
+            processReact(val);
+            return undefined;
         } else {
             value = (val.valueOf() as T);
+        }
+        if(React.isValidElement(value)) {
+            processReact(value);
+            return undefined;
         }
         if(container !== undefined) {
             container.innerHTML = ((value as unknown) as string);
@@ -368,11 +380,20 @@ export abstract class DisplayedItem {
         DisplayedItem.gt_windowEventHandlers.forEach((eventName) => {
             $(window).on(eventName, $.proxy(this.gtDomEventHandler, this));
         });
+        if(process.env.NODE_ENV == 'development') {
+            $("#top-bar").on("click", $.proxy(this.onCheatClickHandler, this));
+        }
     }
     private detachEventHandlers() {
         DisplayedItem.gt_windowEventHandlers.forEach((eventName) => {
             $(window).off(eventName, $.proxy(this.gtDomEventHandler, this));
         });
+        if(process.env.NODE_ENV == 'development') {
+            $("#top-bar").off("click", $.proxy(this.onCheatClickHandler, this));
+        }
+    }
+    private onCheatClickHandler() {
+        this.emit("gt-cheat-click");
     }
     async display() {
         this._isDisplaying = true;

@@ -1,32 +1,7 @@
-declare interface String {
-    gametools_val: {};
-}
-
-declare interface Number {
-    gametools_val: {};
-}
-
-declare interface Boolean {
-    gametools_val: {};
-}
-
-declare interface Function {
-    gametools_val: {};
-}
-
-declare interface Object {
-    gametools_val: {};
-}
 declare interface JQuery {
     randomize(childElem: string): JQuery;
     equals(otherElement: JQuery): boolean;
     sortElements(comp: (a: Element, b: Element) => number, getSortable?: () => Element): JQuery;
-}
-
-declare namespace JSX {
-    interface Element {
-        gametools_val: {};
-    }
 }
 
 declare type AnimatableItemAnimation = "bounce"|"flash"|"pulse"|"rubberBand"|"shake"|"headShake"|"swing"|"tada"|"wobble"|"jello"|"bounceIn"|"bounceInDown"|"bounceInLeft"|"bounceInRight"|"bounceInUp"|"bounceOut"|"bounceOutDown"|"bounceOutLeft"|"bounceOutRight"|"bounceOutUp"|"fadeIn"|"fadeInDown"|"fadeInDownBig"|"fadeInLeft"|"fadeInLeftBig"|"fadeInRight"|"fadeInRightBig"|"fadeInUp"|"fadeInUpBig"|"fadeOut"|"fadeOutDown"|"fadeOutDownBig"|"fadeOutLeft"|"fadeOutLeftBig"|"fadeOutRight"|"fadeOutRightBig"|"fadeOutUp"|"fadeOutUpBig"|"flipInX"|"flipInY"|"flipOutX"|"flipOutY"|"lightSpeedIn"|"lightSpeedOut"|"rotateIn"|"rotateInDownLeft"|"rotateInDownRight"|"rotateInUpLeft"|"rotateInUpRight"|"rotateOut"|"rotateOutDownLeft"|"rotateOutDownRight"|"rotateOutUpLeft"|"rotateOutUpRight"|"hinge"|"jackInTheBox"|"rollIn"|"rollOut"|"zoomIn"|"zoomInDown"|"zoomInLeft"|"zoomInRight"|"zoomInUp"|"zoomOut"|"zoomOutDown"|"zoomOutLeft"|"zoomOutRight"|"zoomOutUp"|"slideInDown"|"slideInLeft"|"slideInRight"|"slideInUp"|"slideOutDown"|"slideOutLeft"|"slideOutRight"|"slideOutUp";
@@ -58,6 +33,7 @@ declare interface ResponsiveVoice {
     enableWindowClickHook(): void;
     enableEstimationTimeout: boolean;
 }
+
 declare interface Window {
     responsiveVoice: ResponsiveVoice;
 }

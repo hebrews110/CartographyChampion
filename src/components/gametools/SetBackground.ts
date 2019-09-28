@@ -42,8 +42,8 @@ export class SetBackground extends DisplayedItem {
                 });
                 $($img.get(SetBackground.nextIndex)).css("background-image", 'url(' + bgImg.src + ')');
                 const cc = DisplayedItem.getValue(null, this.customClasses);
-                $img.attr("data-customClasses", cc);
-                $img.addClass(cc);
+                $($img.get(SetBackground.nextIndex)).attr("data-customClasses", cc);
+                $($img.get(SetBackground.nextIndex)).addClass(cc);
             };
             bgImg.onerror = () => {
                 console.log("Failed to load image");

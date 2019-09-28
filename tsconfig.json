@@ -11,6 +11,21 @@
     "allowSyntheticDefaultImports": true,
     "removeComments": false,
     "experimentalDecorators": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "outDir": "build",
+    "typeRoots": [
+        "./node_modules/@types",
+        "./components/types"
+    ],
+    "baseUrl": "./",
+    "paths": {
+        "*": [
+            "node_modules/@types/*",
+            "*"
+        ]
+    }
+  },
+  "files": [
+    "src/code.tsx"
+  ]
 }

@@ -12,6 +12,7 @@ export class InfoBox extends DisplayedItem {
     public $title: JQuery<HTMLElement>;
     public $content: JQuery<HTMLElement>;
     public $footer: JQuery<HTMLElement>;
+    public $progressBar: JQuery<HTMLElement>;
     constructor(protected title: GameValue<string>, protected text: GameValue<string>, protected buttonText: GameValue<string> = "OK", protected delay?: number, style?: StylisticOptions) {
         super(style);
         this.$dialog = null;
@@ -69,6 +70,17 @@ export class InfoBox extends DisplayedItem {
             $backdrop.css('z-index', zIndex - 5);
         super.updateZIndex();
     }
+    public setProgressVisible(visiblility: boolean) {
+        if(visiblility)
+            this.$progressBar.show();
+        else
+            this.$progressBar.hide();
+    }
+    public setProgress(value: number) {
+        if(value < 0 || value > 1)
+            throw new Error("Value out of range");
+        this.$progressBar.children().width((value * 100) + "%");
+    }
     async display() {
         await super.display();
         await new Promise(async(resolve) => {
@@ -98,6 +110,10 @@ export class InfoBox extends DisplayedItem {
             let close_button = $("<button></button>").addClass("close").attr({ "aria-label": "Close"});
             modal_header.append(close_button);
             close_button.append($("<span></span>").attr("aria-hidden", "true").html("&times;"));
+            this.$progressBar = $("<div></div>").addClass("progress");
+            this.$progressBar.append($("<div></div>").addClass("progress-bar").attr("role", "progressbar"));
+            this.$progressBar.hide();
+            modal_content.append(this.$progressBar);
             this.$content = $("<div></div>").addClass("modal-body").addClass(this.objStyle.customBodyClassList);
             modal_content.append(this.$content);
             this.$footer = $("<div></div>").addClass("modal-footer");
