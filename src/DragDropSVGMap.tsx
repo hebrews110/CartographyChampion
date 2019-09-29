@@ -462,8 +462,15 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             opt = GameTools.pl_undef(opt, "");
             if(this.isClickLevel())
                 this.$title.text(`Click on ${opt}`);
-            else
-                this.$title.text(`${this.isBasicDragOption() ? "Drag" : "Manipulate"} the ${this.getSingularNounForMode()} into position.`);
+            else {
+                var namingPortion;
+                if(this.getMode() == MapMode.Capitals)
+                    namingPortion = `${country.findByIso2(this.targetCountry.node().dataset.oldId.replace(/-/g, ' ').toUpperCase()).capital} and its country`;
+                else {
+                    namingPortion = `${this.getCountryName(this.targetCountry.node().dataset.oldId.replace(/-/g, ' ').toUpperCase())}`;
+                }
+                this.$title.text(`${this.isBasicDragOption() ? "Drag" : "Manipulate"} ${namingPortion} into position.`);
+            }
         };
         
         if(this.countryIds.length == 0) {
@@ -482,7 +489,6 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             this.targetCountryNode = this.svg_element.querySelector(oldId);
             setTitle(this.getCountryName(oldId.substr(1).replace(/-/g, ' ')));
         } else if(!this.isInputBasedLevel()) {
-            setTitle();
             this.targetCountry = d3.select(this.svg_element).select(oldId);
             const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
             this.svg_element.appendChild(defs);
@@ -543,7 +549,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 if(this.getLevel() == MapLevel.DragOptionWithDisappearance)
                     this.svg_element.classList.add("hide-country-borders");
             }
-            
+            setTitle();
             this.transformX = 0;
             this.transformY = 0;
             console.log("Size: " + this.currentSize);
@@ -709,7 +715,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                     }
                 });
             });
-            this.svg_element.querySelectorAll("#xa, #xn, #xj, #xd, #xk, #xl, #xc, #xz, #xs, #xo, #xp, #xq").forEach((idElement) => {
+            this.svg_element.querySelectorAll("#xa, #xn, #xj, #xd, #xk, #xl, #xc, #xz, #xs, #xo, #xp, #xq, #easter_island").forEach((idElement) => {
                 idElement.parentNode.removeChild(idElement);
             });
             
@@ -741,8 +747,11 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 let g: SVGElement = circle;
                 do {
                     g = (g.parentNode as SVGElement); 
-                } while(g.parentNode != this.svg_element);
-                this.svg_element.appendChild(g);
+                } while(g != null && g.parentNode != this.svg_element);
+                if(0)
+                    this.svg_element.appendChild(g);
+                else if(g != null)
+                    this.svg_element.removeChild(g);
             });
         } else {
             Array.from(this.svg_element.children).forEach((child) => {
@@ -937,7 +946,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                     console.log(obj);
                     return obj;
                 }), [ function(o) { return o.newName; } ]).forEach((obj) => {
-                    menu.append($("<a></a>").addClass("dropdown-item").attr("href", "#").text(obj.newName).attr("data-org-id", obj.oldId).click((e) => this.buttonCallback(e)));
+                    menu.append($("<a></a>").addClass("dropdown-item").attr("href", "javascript:void(0);").text(obj.newName).attr("data-org-id", obj.oldId).click((e) => this.buttonCallback(e)));
                 });
                 dropDown.append(menu);
                 $(flexbox).prepend(dropDown);

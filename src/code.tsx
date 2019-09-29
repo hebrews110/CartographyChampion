@@ -58,7 +58,7 @@ const questionArray: QuestionOption[] = [
 let myArray = [
     new Invoke(() => window.addEventListener("popstate", () => window.location.reload())),
     new SetBackground(require('./components/globe.svg'), "globe-tile"),
-    new TitleScreen("This game is best played on a PC, and will not work in IE.", false),
+    new TitleScreen("This game is best played on a PC and will not work in IE.", false),
     new Invoke(processLink),
     new Condition(Label.label(""), new Loop({ index: "run" }), () => mode == null),
     new Question(QuestionType.MultipleChoice, "Choose a category.", extractEnumAsQuestionOption(MapMode), false, questionStyle),
