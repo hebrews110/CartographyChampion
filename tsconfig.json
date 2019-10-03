@@ -1,18 +1,19 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
-    "lib": [ "esnext", "dom", "dom.iterable", "scripthost" ],
     "jsx": "react",
-    "module": "esnext",
+    "module": "es6",
     "target": "es2018",
     "noImplicitThis": false,
     "noImplicitReturns": true,
     "noEmitOnError": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": false,
     "removeComments": false,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-    "outDir": "build",
+    "outDir": "intermediate",
+    "incremental": true,
+    "allowJs": true,
     "typeRoots": [
         "./node_modules/@types",
         "./components/types"
@@ -26,6 +27,6 @@
     }
   },
   "files": [
-    "src/code.tsx"
+      "main.ts"
   ]
 }
