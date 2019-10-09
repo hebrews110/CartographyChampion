@@ -425,7 +425,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 if(this.tries >= 3) {
                     $(this.targetCountry.node()).addClass("show-correct-country");
                     $(this.targetCountry.node()).addClass("animate-correct-country");
-                    this.$title.text("Alright; the correct location is now highlighted.");
+                    this.$title.text("Alright, the correct location is now highlighted.");
                 }
                 $button.prop("disabled", false);
             }
