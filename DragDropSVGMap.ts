@@ -139,8 +139,10 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             }
         }
     }
-    addTooltipToCountry(el: SVGElement, name?: string) {
-        const code = el.id.replace(/-/g, ' ').toUpperCase();
+    addTooltipToCountry(el: SVGElement, code?: string, name?: string) {
+        if(code == undefined)
+            code = el.id.replace(/-/g, ' ');
+        code = code.toUpperCase();
         const c = country.findByIso2(code);
         if(name == undefined) {
             if(c != undefined) {
@@ -361,6 +363,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 this.transformX = 0;
                 this.transformY = 0;
                 this.updateCountryVals(this.currentCountry);
+                this.addTooltipToCountry(this.currentCountry, this.currentCountry.getAttribute("href").substr(1));
                 if(this.elementToMoveUseTo != null)
                     this.svg_element.insertBefore(this.currentCountry, this.elementToMoveUseTo);
                 if(!wasWrong) {
@@ -392,8 +395,12 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                             this.$title.text("That seems a bit big!");
                         else if(this.badRotation())
                             this.$title.text("Rotation is key.");
-                        else if(distance >= 10)
-                            this.$title.text("Everything is right except for the position.");
+                        else if(distance >= 10) {
+                            if(this.getLevel() == MapLevel.DragAndSizeOption)
+                                this.$title.text("Everything is right except for the position.");
+                            else
+                                this.$title.text("It's not in the right spot.");
+                        }
                     }
                 }
                 changeTitle.call(this);
