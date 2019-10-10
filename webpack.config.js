@@ -27,10 +27,14 @@ var babelRegex = function(moduleName) {
         retVal = true;
     return retVal;
 }
+
+function isProduction(env) {
+    return typeof env != "undefined" && env.production;
+}
 module.exports = env => {
   return {
     entry: [ './main.ts', './styles.scss' ],
-    mode: env.production ? 'production' : 'development',
+    mode: isProduction(env) ? 'production' : 'development',
     module: {
       rules: [
         {
@@ -83,7 +87,7 @@ module.exports = env => {
       contentBase: '.',
       port: 8080
     },
-    devtool: env.production ? false: 'inline-source-map',
+    devtool: isProduction(env) ? false: 'inline-source-map',
     plugins: [
       new WebpackBar()
     ]
