@@ -17,9 +17,9 @@ export class Label extends DisplayedItem implements LabelledItem {
         if(item !== undefined) {
             let li = (item as unknown as LabelledItem);
             li.gt_label = DisplayedItem.getValue(null, label);
-            return li as LabelledItem&T;
+            return li as unknown as LabelledItem&T;
         } else {
-            return new Label(label) as LabelledItem&T;
+            return new Label(label) as unknown as LabelledItem&T;
         }
         
     }
