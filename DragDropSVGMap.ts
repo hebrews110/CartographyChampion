@@ -40,10 +40,12 @@ export type ValidContinents = "Africa"|"Europe"|"North America"|"South America"|
 export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
     private static readonly outlineStroke: string = "rgb(0, 0, 0)";
     private static readonly correctColor: string = "rgb(133, 186, 0)";
+    mapResponse: Promise<Response>;
     numClickedItems: number;
     maxItems: number;
     $bottomButton: JQuery;
     orig: SVGElement;
+    lockout = false;
     currentCountry: SVGGraphicsElement;
     targetCountry: d3.Selection<SVGElement, unknown, Element, unknown>;
     targetCountryNode: SVGGElement;
@@ -227,6 +229,10 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
         GameTools.showTopBar(true);
         await super._undisplay();
     }
+    async display() {
+        this.mapResponse = fetch(this.getMapForMode());
+        await super.display();
+    }
     cloneAndAppendToElement(orig: SVGElement, selection: d3.Selection<SVGElement, any, Element, any>, target: SVGElement): SVGGElement {
         const selArray = selection.clone(true).remove().nodes();
         let group: SVGGElement = selArray[0] as SVGGElement;
@@ -309,6 +315,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             const hadFocus = (document.activeElement == $input.get(0));
             $input.prop("disabled", true);
             if(isCorrect) {
+                this.lockout = true;
                 this.$title.text("Yes! That's right!");
                 $(this.targetCountryNode).removeClass("input-country");
                 this.targetCountryNode.style.fill = DragDropSVGMap.getCorrectColor();
@@ -324,12 +331,20 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             } else {
                 if(makeVisible) {
                     GameTools.animateCSS(this.$dialog.find(".modal-dialog").get(0), "shake");
-                    if(this.getMode() != MapMode.Capitals)
+                    if(this.getMode() != MapMode.Capitals) {
                         this.$title.text("Hmm.. that doesn't seem right.");
-                    else {
-                        const info = this.getCountryInfo(this.pickedCountry);
-                        this.$title.text(`No, ${info.capital} is the capital of ${info.name}.`);
+                    } else {
+                        if(this.pickedCountry != null) {
+                            const info = this.getCountryInfo(this.pickedCountry);
+                            this.$title.text(`No, ${info.capital} is the capital of ${info.name}.`);
+                        } else {
+                            this.$title.text(`Incorrect!`);
+                        }
                     }
+                    setTimeout(() => {
+                        if(this.isDisplaying() && !this.lockout)
+                            this.resetQuestionTitle();
+                    }, 2000);
                     this.tries++;
                     if(this.tries >= 3) {
                         this.$title.text(`The ${this.getSingularNounForMode()}${this.getMode() == MapMode.Capitals ? ` of ${this.getCountryInfo(this.targetCountryNode).name} ` : ""} is ${this.getCountryName(this.targetCountryNode.id.replace(/-/g, ' '))}`);
@@ -451,11 +466,16 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
         return this.getLevel() == MapLevel.DragOptionToCorrectLocation || this.getLevel() == MapLevel.DragOptionWithDisappearance;
     }
     spawnCountry() {
+        this.lockout = false;
         const setTitle = (opt?: string) => {
             opt = GameTools.pl_undef(opt, "");
-            if(this.isClickLevel())
-                this.$title.text(`Click on ${opt}`);
-            else {
+            if(this.isClickLevel()) {
+                if(this.getMode() == MapMode.Capitals) {
+                    this.$title.text(`Click on the country whose capital is ${opt}`);
+                } else {
+                    this.$title.text(`Click on ${opt}`);
+                }
+            } else {
                 var namingPortion;
                 if(this.getMode() == MapMode.Capitals)
                     namingPortion = `${country.findByIso2(this.targetCountry.node().getAttribute("data-old-id").replace(/-/g, ' ').toUpperCase()).capital} and its country`;
@@ -564,22 +584,25 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             }
             if(this.targetCountryNode == null)
                 throw new Error("No reference to country element");
-            if(this.isTypingLevel()) {
-                if(this.getMode() == MapMode.Capitals) {
-                    this.$title.text(`Type the first three letters of ${possessive(this.getCountryInfo(this.targetCountryNode).name)} capital's name.`);
-                } else
-                    this.$title.text(`Type the first three letters of this ${possessive(this.getSingularNounForMode())} name.`);
-            } else if(this.getLevel() == MapLevel.PickNameFromList) {
-                if(this.getMode() == MapMode.Capitals) {
-                    this.$title.text(`What is the name of ${possessive(this.getCountryInfo(this.targetCountryNode).name)} capital?`);
-                } else {
-                    this.$title.text(`What ${this.getSingularNounForMode()} is highlighted in yellow and outlined in blue?`);
-                }
-            } else
-                throw new Error("Should not be here");
+            this.resetQuestionTitle();
             $(this.targetCountryNode).addClass("input-country");
         }
         
+    }
+    resetQuestionTitle() {
+        if(this.isTypingLevel()) {
+            if(this.getMode() == MapMode.Capitals) {
+                this.$title.text(`Type the first three letters of ${possessive(this.getCountryInfo(this.targetCountryNode).name)} capital's name.`);
+            } else
+                this.$title.text(`Type the first three letters of this ${possessive(this.getSingularNounForMode())} name.`);
+        } else if(this.getLevel() == MapLevel.PickNameFromList) {
+            if(this.getMode() == MapMode.Capitals) {
+                this.$title.text(`What is the name of ${possessive(this.getCountryInfo(this.targetCountryNode).name)} capital?`);
+            } else {
+                this.$title.text(`What ${this.getSingularNounForMode()} is highlighted in yellow and outlined in blue?`);
+            }
+        } else
+            throw new Error("Should not be here");
     }
     onSvgRendered() {
         const use = this.currentCountry;
@@ -590,7 +613,8 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
     async dialogCreated() {
         await super.dialogCreated();
         this.$title.parent().find(".close").remove();
-        const response = await fetch(this.getMapForMode());
+        this.$footer.find("button").remove();
+        const response = await this.mapResponse;
         this.map_svghtml = await response.text();
         this.$dialog.find(".modal-dialog").addClass("modal-dialog-scrollable");
     }
