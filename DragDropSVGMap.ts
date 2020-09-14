@@ -613,7 +613,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
     async dialogCreated() {
         await super.dialogCreated();
         this.$title.parent().find(".close").remove();
-        this.$footer.find("button").remove();
+        //this.$footer.find("button").remove();
         const response = await this.mapResponse;
         this.map_svghtml = await response.text();
         this.$dialog.find(".modal-dialog").addClass("modal-dialog-scrollable");
