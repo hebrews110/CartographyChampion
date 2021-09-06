@@ -85,6 +85,7 @@ module.exports = env => {
     },
     devServer: {
       contentBase: '.',
+      publicPath: '/built/',
       port: 8080
     },
     devtool: isProduction(env) ? false: 'inline-source-map',
