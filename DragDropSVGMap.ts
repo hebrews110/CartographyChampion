@@ -19,6 +19,8 @@ const country = require('country-list-js');
 
 import Box2D from "./components/gametools/Box2D";
 
+import Timeout from 'smart-timeout';
+
 export enum MapMode {
     Continents,
     Countries,
@@ -293,6 +295,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             return;
         const $button = this.$footer.find("button");
         $button.prop("disabled", true);
+        console.log("test");
         var isCorrect = true;
         let $input: JQuery;
         if(this.isInputBasedLevel()) {
@@ -325,6 +328,8 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                         $input.val("");
                     this.spawnCountry();
                     $input.prop("disabled", false);
+                    /* Re-enable OK button immediately when new question appears */
+                    $button.prop("disabled", false);
                     if(GameTools.notScrollable(this.svg_element.parentNode as Element))
                         $input.focus();
                 }, 2000);
@@ -341,7 +346,9 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                             this.$title.text(`Incorrect!`);
                         }
                     }
-                    setTimeout(() => {
+                    const titleKey = 'answered-incorrectly-country-title-reset';
+                    Timeout.clear(titleKey);
+                    Timeout.set(titleKey, () => {
                         if(this.isDisplaying() && !this.lockout)
                             this.resetQuestionTitle();
                     }, 2000);
