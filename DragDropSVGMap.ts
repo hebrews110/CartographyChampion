@@ -541,9 +541,22 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             this.currentUseSelection.call(GameTools.assertProperty(globalThis, "d3").drag().subject(() => {
                 return { x: this.transformX, y: this.transformY }; 
             }).on("drag", function(d: any) {
+                /* Save the previous position */
+                const oldTransformX = _self.transformX;
+                const oldTransformY = _self.transformY;
+                /* Set the new position */
                 _self.transformX = GameTools.assertProperty(globalThis, "d3").event.x;
                 _self.transformY = GameTools.assertProperty(globalThis, "d3").event.y;
                 _self.updateCountryVals(_self.currentCountry);
+                /* Test if the new position goes outside the map */
+                const countryRect = _self.currentUseSelection.node().getBoundingClientRect();
+                const svgRect = _self.svg_element.getBoundingClientRect();
+                if(countryRect.left < svgRect.left || countryRect.top < svgRect.top || countryRect.right > svgRect.right || countryRect.bottom > svgRect.bottom) {
+                    /* Revert to the old position */
+                    _self.transformX = oldTransformX;
+                    _self.transformY = oldTransformY;
+                    _self.updateCountryVals(_self.currentCountry);
+                }
             }).on("start", function() {
                 _self.svg_element.style.touchAction = "none";
                 GameTools.assertProperty(globalThis, "d3").event.sourceEvent.preventDefault();
