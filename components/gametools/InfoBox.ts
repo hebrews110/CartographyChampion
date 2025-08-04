@@ -33,7 +33,7 @@ export class InfoBox extends DisplayedItem {
         this.$dialog.find(".modal-header").append(close_button);
     }
     async _undisplay() {
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             this.$dialog.one("hidden.bs.modal", () => resolve());
             this.$dialog.modal('hide');
         });
@@ -81,7 +81,7 @@ export class InfoBox extends DisplayedItem {
     }
     async display() {
         await super.display();
-        await new Promise(async(resolve) => {
+        await new Promise<void>(async(resolve) => {
             await GameTools.sleep(this.delay);
             this.$dialog = $("<div></div>");
             this.getAppendedContainer(true).append(this.$dialog);
@@ -124,7 +124,7 @@ export class InfoBox extends DisplayedItem {
             } else {
                 this.$dialog.find(".modal-header").hide();
             }
-                
+
             if(this.text != null) {
                 this.$dialog.find(".modal-body").show();
                 if(!this.objStyle.useAsContainer) {
@@ -139,7 +139,7 @@ export class InfoBox extends DisplayedItem {
                     $(header).insertBefore(reactContainer);
                     $(footer).insertAfter(reactContainer);
                 }
-                
+
             } else {
                 this.$dialog.find(".modal-body").hide();
             }
@@ -153,7 +153,7 @@ export class InfoBox extends DisplayedItem {
                 });
             });
             this.$dialog.find(".modal-footer").empty();
-            
+
             let realText = DisplayedItem.getValue(this, this.buttonText);
             let closeShown = false;
             if(realText != null && realText != "") {
@@ -184,7 +184,7 @@ export class InfoBox extends DisplayedItem {
 
             $closeButtons.off("click");
             $closeButtons.on("click", (e) => this.buttonCallback(e));
-            
+
             this.$dialog.one("show.bs.modal", (e) => {
                 if(this.objStyle.showBackdrop) {
                     let $backdrop = $("<div></div>").addClass("modal-backdrop fade show");
