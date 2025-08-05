@@ -163,7 +163,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             <div class="arrow"></div>
             <div class="tooltip-inner"></div>
         </div>`;
-        
+
         if(el.getAttribute("data-tooltip-registered") == "true") {
             $(el).attr("data-original-title", name).tooltip('_fixTitle');
         } else {
@@ -191,7 +191,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             if(el.getAttribute("data-added-fill") != "true") {
                 el.setAttribute("data-added-fill", "true");
                 this.addTooltipToCountry(el);
-                el.style.fill = DragDropSVGMap.getCorrectColor(); 
+                el.style.fill = DragDropSVGMap.getCorrectColor();
                 el.style.stroke = DragDropSVGMap.outlineStroke;
                 this.numClickedItems++;
                 if(this.numClickedItems == this.maxItems)
@@ -225,7 +225,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 }
             }
         }
-        
+
     }
     async _undisplay() {
         GameTools.showTopBar(true);
@@ -394,7 +394,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                     $(this.countrySource).removeClass("animate-correct-country");
                 } else {
                     $(this.countrySource).addClass("show-correct-country");
-    
+
                 }
                 this.currentUseSelection.on(".drag", null);
                 $(this.currentUseSelection.node()).removeClass("current-country");
@@ -492,14 +492,14 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 this.$title.text(`${this.isBasicDragOption() ? "Drag" : "Manipulate"} ${namingPortion} into position.`);
             }
         };
-        
+
         if(this.countryIds.length == 0) {
             /* End the whole thing */
             this.clearCountryVars();
             this.displayNext();
             return;
         }
-        
+
         this.tries = 0;
         const oldId = GameTools.getRandomArrayMember(this.countryIds);
         this.$progressBar.show();
@@ -522,7 +522,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             this.targetCountry.node().setAttribute("id", '');
             this.currentCountry = document.createElementNS("http://www.w3.org/2000/svg", "use");
             if(this.svg_element.querySelector(oldId).querySelector("circle") != null || this.getMode() == MapMode.Continents) {
-                
+
                 this.elementToMoveUseTo = null;
             } else {
                 const circleDivider = this.svg_element.querySelector("#gt-svg-circle-divider");
@@ -539,7 +539,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             $(this.currentCountry).addClass("current-country");
             const _self = this;
             this.currentUseSelection.call(GameTools.assertProperty(globalThis, "d3").drag().subject(() => {
-                return { x: this.transformX, y: this.transformY }; 
+                return { x: this.transformX, y: this.transformY };
             }).on("drag", function(d: any) {
                 /* Save the previous position */
                 const oldTransformX = _self.transformX;
@@ -607,7 +607,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             this.resetQuestionTitle();
             $(this.targetCountryNode).addClass("input-country");
         }
-        
+
     }
     resetQuestionTitle() {
         if(this.isTypingLevel()) {
@@ -638,7 +638,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
         this.map_svghtml = await response.text();
         this.$dialog.find(".modal-dialog").addClass("modal-dialog-scrollable");
     }
-    
+
     fixupElement() {
         /* Bind zoom, touch, etc. */
         //DragDropSVGMap.hammerIt(this.svg_element);
@@ -674,7 +674,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
             this.svg_element.querySelectorAll("#xa, #xn, #xj, #xd, #xk, #xl, #xc, #xz, #xs, #xo, #xp, #xq, #easter_island").forEach((idElement) => {
                 idElement.parentNode.removeChild(idElement);
             });
-            
+
             if(this.getMode() != MapMode.Continents && this.continentName == undefined)
                 throw new Error("Continent name must be provided");
             this.svg_element.querySelectorAll("g[id], path[id]").forEach((g: SVGGElement|SVGPathElement) => {
@@ -690,7 +690,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 }
             });
 
-            
+
             const circleDivider = document.createElementNS("http://www.w3.org/2000/svg", "g");
             circleDivider.setAttribute("id", "gt-svg-circle-divider");
             circleDivider.style.display = "none";
@@ -700,7 +700,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 /* Push circles to the top */
                 let g: SVGElement = circle;
                 do {
-                    g = (g.parentNode as SVGElement); 
+                    g = (g.parentNode as SVGElement);
                 } while(g != null && g.parentNode != this.svg_element);
                 if(0)
                     this.svg_element.appendChild(g);
@@ -782,7 +782,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                 }
             });
             const backgroundCountries = GameTools.assertProperty(globalThis, "d3").selectAll(".background-country");
-            
+
             const _self = this;
             backgroundCountries.each(function(this: SVGGElement) {
                 $(this).addClass("background-country");
@@ -862,7 +862,7 @@ export class DragDropSVGMap<T extends MapMode = MapMode> extends InfoBox {
                this.easyPz(map_div);
                */
             if(this.isTypingLevel()) {
-                $(flexbox).prepend($("<input></input>").attr("type", "text").attr("maxlength", "3").attr("placeholder", "Enter country name").addClass("form-control")/*.on("input", () => this.dragFinished(false)) */.on("keyup", (e) => {
+                $(flexbox).prepend($("<input></input>").attr("type", "text").attr("maxlength", "3").attr("placeholder", "Enter " + this.getSingularNounForMode() + " name").addClass("form-control")/*.on("input", () => this.dragFinished(false)) */.on("keyup", (e) => {
                     if(e.which == 13)
                         this.dragFinished(true);
                 }));
