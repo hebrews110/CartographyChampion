@@ -230,7 +230,7 @@ namespace GameTools {
                         this.options.scroll = false;
                     }
                 },
-    
+
                 _mouseStop: function(event) {
                     this._super(event);
                     this.options.scroll = this.origScroll;
@@ -239,14 +239,14 @@ namespace GameTools {
         } else {
             console.warn("JQuery UI not present");
         }
-        
+
         $(document).on("hidden.bs.modal", ".modal", function() {
             $(".modal:visible").length &&
                 $(document.body).addClass("modal-open");
         });
 
         BrowserDetect.init();
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             $(".preloader").fadeOut(() => {
                 $(".preloader").remove();
                 resolve();
@@ -257,7 +257,7 @@ namespace GameTools {
         const a = 'àáäâãåăæąçćčđďèéěėëêęğǵḧìíïîįłḿǹńňñòóöôœøṕŕřßşśšșťțùúüûǘůűūųẃẍÿýźžż·/_,:;';
         const b = 'aaaaaaaaacccddeeeeeeegghiiiiilmnnnnooooooprrsssssttuuuuuuuuuwxyyzzz------';
         const p = new RegExp(a.split('').join('|'), 'g');
-      
+
         return string.toString().toLowerCase()
           .replace(/\s+/g, '-') // Replace spaces with -
           .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
@@ -285,7 +285,7 @@ namespace GameTools {
             if ( data.indexOf( 'http://www.w3.org/2000/svg' ) < 0 ) {
                 data = data.replace( /<svg/g, `<svg xmlns=${quotes.level2}http://www.w3.org/2000/svg${quotes.level2}` );
             }
-        
+
             return data;
         }
         function encodeSVG( data ) {
@@ -296,21 +296,21 @@ namespace GameTools {
             else {
                data = data.replace( /'/g, '"' );
             }
-        
+
             data = data.replace( />\s{1,}</g, "><" );
             data = data.replace( /\s{2,}/g, " " );
-        
+
             return data.replace( symbols, encodeURIComponent );
         }
-        
-        
+
+
         // Get quotes for levels
         //----------------------------------------
-        
+
         function getQuotes() {
             const double = `"`;
             const single = `'`;
-        
+
             return {
                 level1: externalQuotesValue === 'double' ? double : single,
                 level2: externalQuotesValue === 'double' ? single : double
@@ -359,7 +359,7 @@ namespace GameTools {
         } catch(e) {
             rej(e);
         }
-        
+
         return prom;
     }
     export function magnify(img: JQuery<HTMLElement>) {
@@ -376,42 +376,42 @@ namespace GameTools {
         // Wrap the amount
         if (amount < 0)
             return caesarShift(str, amount + 26);
-    
+
         // Make an output variable
         var output = '';
-    
+
         // Go through each character
         for (var i = 0; i < str.length; i ++) {
-    
+
             // Get the character we'll be appending
             var c = str[i];
-    
+
             // If it's a letter...
             if (c.match(/[a-z]/i)) {
-    
+
                 // Get its code
                 var code = str.charCodeAt(i);
-    
+
                 // Uppercase letters
                 if ((code >= 65) && (code <= 90))
                     c = String.fromCharCode(((code - 65 + amount) % 26) + 65);
-    
+
                 // Lowercase letters
                 else if ((code >= 97) && (code <= 122))
                     c = String.fromCharCode(((code - 97 + amount) % 26) + 97);
-    
+
             }
-    
+
             // Append
             output += c;
-    
+
         }
-    
+
         // All done!
         return output;
-    
+
     }
-    
+
     export function stripPunctuation(str: string): string {
         const punctRE = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/g;
         return str.replace(/[.,\/#!$'"%\^&\*;:{}=\-_`~()]/g,"").replace(punctRE, '').replace(/\s{2,}/g," ").toLowerCase();
@@ -424,7 +424,7 @@ namespace GameTools {
         array.push(item);
         return item;
     }
-    
+
     export function pad(num: number, width: number, z?: string): string {
         z = z || '0';
         if(z.length != 1)
@@ -432,7 +432,7 @@ namespace GameTools {
         let n: string = num + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     }
-    type RemoveFirstFromTuple<T extends any[]> = 
+    type RemoveFirstFromTuple<T extends any[]> =
         T['length'] extends 0 ? undefined :
         (((...b: T) => void) extends (a, ...b: infer I) => void ? I : []);
     export function invokeOn<T, F extends (this: T, ...args: any) => any>(obj: T, fn: F, ...args: Parameters<F>): T {
@@ -507,7 +507,7 @@ namespace GameTools {
         } else if(doThrow == undefined || !doThrow)
             return false as any;
         else
-            throw new Error(`Property '${name}' does not exist on object '${obj}'`);
+            throw new Error(`Property '${String(name)}' does not exist on object '${obj}'`);
     }
     type RectNormalizationType = { top: number; left: number; right: number; bottom: number; width: number; height: number};
     export function normalizeRect<T extends RectNormalizationType>(rect: T): RectNormalizationType {

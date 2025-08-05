@@ -20,7 +20,7 @@ type BaseGameValue<T> = (T|(() => T));
 export type GameValue<T> = BaseGameValue<T>|ConditionalGameValue<T, string, JSX.Element>;
 export function initializeArray(array: GameArray, clearPollers = false, shouldWarn = false) {
     array.contentsIndex = 0;
-    
+
     if(!array.initialized || clearPollers)
         array.indexPollers = new Array();
     array.initialized = true;
@@ -39,7 +39,7 @@ export async function resetSystem(array: GameArray) {
     }
 }
 export async function restart(array: GameArray, shouldInitialize = false) {
-    
+
     if(array.contentsIndex != undefined) {
         const item = array[array.contentsIndex];
         if(isDisplayedItem(item) && item.isDisplaying()) {
@@ -81,7 +81,7 @@ export async function toDisplayedItem(item: GameArrayItem, array?: GameArray): P
         let nextItem = await toDisplayedItem(realItem, array);
         return nextItem;
     }
-    
+
 }
 export async function startDisplay(array: GameArray) {
     await initializeArray(array);
@@ -145,7 +145,7 @@ export abstract class DisplayedItem {
         } else if(Object(val) !== val) {
             value = ((val as unknown) as T);
         } else if(val instanceof Function) {
-            value = val();
+            value = val() as T;
         } else if(GameTools.isValidReactElement(val)) {
             processReact(val);
             return undefined;
@@ -213,7 +213,7 @@ export abstract class DisplayedItem {
             return DisplayedItem.visibleStack[DisplayedItem.visibleStack.length - 1];
         else
             return null;
-    } 
+    }
     static updateHelp(helpItem?: React.Component) {
         if(GameTools.helpRef == undefined)
             return; /* help not supported without React */
@@ -273,7 +273,7 @@ export abstract class DisplayedItem {
         if(this.objStyle.forceShowClose === undefined)
             this.objStyle.forceShowClose = false;
         if(this.objStyle.customBackgroundClassList === undefined)
-            this.objStyle.customBackgroundClassList = ""; 
+            this.objStyle.customBackgroundClassList = "";
         if(this.objStyle.customBodyClassList === undefined)
             this.objStyle.customBodyClassList = "";
         if(this.objStyle.useAsContainer === undefined)
@@ -311,7 +311,7 @@ export abstract class DisplayedItem {
             initializeArray(this.parentArray);
         }
         return this.parentArray;
-        
+
     }
     async resize() {
 
@@ -480,7 +480,7 @@ export abstract class DisplayedItem {
         while(true) {
             if(array.contentsIndex == index)
                 return;
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 array.indexPollers.push(resolve);
             });
         }
